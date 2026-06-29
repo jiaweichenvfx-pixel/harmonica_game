@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Harmonica Pitch Prototype</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="practice-panel">
+        <div class="topbar">
+          <div>
+            <p class="eyebrow">Desktop Web Prototype</p>
+            <h1>单音音高练习机</h1>
+          </div>
+          <div class="status-pill" id="micStatus">麦克风未开启</div>
+        </div>
+
+        <div class="hero-readout">
+          <div>
+            <p class="label">当前目标</p>
+            <div class="target-note" id="targetNotation">1</div>
+            <p class="target-meta" id="targetMeta">C4 · 4 blow</p>
+          </div>
+          <div class="feedback" id="feedback">等待开始</div>
+        </div>
+
+        <div class="notation-track" id="notationTrack"></div>
+
+        <div class="controls">
+          <button id="startPractice" type="button">开始</button>
+          <button id="stopPractice" type="button" class="secondary">停止</button>
+          <button id="prevNote" type="button" class="icon-button" aria-label="上一个目标">‹</button>
+          <button id="nextNote" type="button" class="icon-button" aria-label="下一个目标">›</button>
+          <button id="startMic" type="button" class="secondary">开启麦克风</button>
+          <button id="playTarget" type="button" class="secondary">播放目标音</button>
+        </div>
+
+        <div class="meter-grid">
+          <div>
+            <p class="label">检测音高</p>
+            <strong id="detectedNote">--</strong>
+          </div>
+          <div>
+            <p class="label">频率</p>
+            <strong id="frequency">-- Hz</strong>
+          </div>
+          <div>
+            <p class="label">偏差</p>
+            <strong id="cents">-- cents</strong>
+          </div>
+          <div>
+            <p class="label">时间</p>
+            <strong id="elapsed">0.0s</strong>
+          </div>
+          <div>
+            <p class="label">输入电平</p>
+            <strong id="inputLevel">--</strong>
+          </div>
+          <div>
+            <p class="label">置信度</p>
+            <strong id="confidence">--</strong>
+          </div>
+        </div>
+      </section>
+
+      <aside class="editor-panel">
+        <label for="notationInput">简谱输入</label>
+        <textarea id="notationInput" spellcheck="false">| 1 2 3 5 | 6 5 3 - |
+| 2 3 5 6 | 5 - 0 5 |
+| 1' 7 6 5 | 3 2 1 - |</textarea>
+
+        <div class="settings-grid">
+          <label>
+            调
+            <select id="keySelect">
+              <option value="C">1=C</option>
+              <option value="D">1=D</option>
+              <option value="F">1=F</option>
+              <option value="G">1=G</option>
+              <option value="A">1=A</option>
+            </select>
+          </label>
+          <label>
+            BPM
+            <input id="tempoInput" type="number" min="40" max="180" value="80" />
+          </label>
+        </div>
+
+        <div class="notes">
+          <p>先用哼唱、口哨、钢琴 App 或任意稳定单音测试。请尽量一次只发一个音，持续 0.5 秒以上。</p>
+          <p>浏览器需要通过本地服务打开页面才能稳定请求麦克风权限。</p>
+        </div>
+      </aside>
+    </main>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
