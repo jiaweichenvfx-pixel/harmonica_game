@@ -45,33 +45,34 @@
         </div>
 
         <div id="freestyleView" class="freestyle-view" hidden>
-          <div>
-            <p class="label">Freestyle Style</p>
-            <h2>Blues Shuffle</h2>
+          <div class="score-header">
+            <div>
+              <p class="label" id="freestyleKey">1=C</p>
+              <h2 id="freestyleTitle">C Blues Shuffle Riff</h2>
+            </div>
+            <div class="score-status">
+              <span id="shufflePosition">1</span>
+              <strong id="freestyleFeedback">waiting</strong>
+            </div>
           </div>
 
-          <div class="freestyle-grid">
+          <div class="score-sheet" id="freestyleScore"></div>
+
+          <div class="freestyle-input">
+            <div>
+              <p class="label">你吹的音</p>
+              <strong id="freestyleNote">--</strong>
+              <p id="freestyleRole">waiting</p>
+            </div>
             <div>
               <p class="label">允许音</p>
               <div class="scale-pills" id="freestyleScale"></div>
             </div>
             <div>
-              <p class="label">当前音</p>
-              <strong id="freestyleNote">--</strong>
-              <p id="freestyleRole">waiting</p>
-            </div>
-            <div>
-              <p class="label">Shuffle 位置</p>
-              <strong id="shufflePosition">1</strong>
-              <p id="shuffleFeel">long</p>
-            </div>
-            <div>
-              <p class="label">反馈</p>
-              <strong id="freestyleFeedback">waiting</strong>
+              <p class="label">Shuffle Feel</p>
+              <strong id="shuffleFeel">long</strong>
             </div>
           </div>
-
-          <div class="shuffle-grid" id="shuffleGrid"></div>
         </div>
 
         <div class="meter-grid">

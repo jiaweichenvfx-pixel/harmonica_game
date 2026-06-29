@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  BLUES_SHUFFLE_RIFF,
   BLUES_SHUFFLE_NOTES,
   evaluateBluesPitch,
   getShufflePosition,
@@ -66,4 +67,23 @@ test("reports shuffle grid positions with long-short feel", () => {
     label: "2",
     step: 2,
   });
+});
+
+test("defines a visible blues shuffle riff score", () => {
+  assert.equal(BLUES_SHUFFLE_RIFF.title, "C Blues Shuffle Riff");
+  assert.deepEqual(BLUES_SHUFFLE_RIFF.shuffleLabels, ["1", "a", "2", "a", "3", "a", "4", "a"]);
+  assert.equal(BLUES_SHUFFLE_RIFF.rows.length, 2);
+  assert.deepEqual(
+    BLUES_SHUFFLE_RIFF.rows.map((row) => row.bars.map((bar) => bar.notes.map((note) => note.notation))),
+    [
+      [
+        ["1", "b3", "4", "#4"],
+        ["5", "b7", "5", "b3"],
+      ],
+      [
+        ["1", "-", "b3", "4"],
+        ["5", "b7", "1'", "-"],
+      ],
+    ],
+  );
 });
