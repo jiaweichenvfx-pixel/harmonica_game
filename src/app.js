@@ -1,8 +1,8 @@
 import { createMicrophonePitchSource } from "./audio/microphone.js";
-import { describeFrequency, midiToFrequency, midiToNoteName } from "./core/music.js";
 import { getCHarmonicaHint } from "./core/harmonica.js";
+import { describeFrequency, midiToFrequency, midiToNoteName } from "./core/music.js";
 import { parseNumberedNotation } from "./core/notation.js";
-import { getActiveNote, judgePlayedNote } from "./core/scoring.js";
+import { PracticeSession } from "./practice/practice-session.js";
 
 const elements = {
   notationInput: document.querySelector("#notationInput"),
@@ -28,8 +28,7 @@ const elements = {
 };
 
 let parsed = null;
-let selectedIndex = 0;
-let practiceStart = null;
+let session = null;
 let practiceFrame = null;
 let microphone = null;
 let latestPitch = {
@@ -44,31 +43,35 @@ let latestPitch = {
 let toneContext = null;
 
 function getTarget() {
-  return parsed?.notes[selectedIndex] ?? null;
+  return session?.getTarget() ?? null;
 }
 
-function getHarmonicaHint(note) {
-  return getCHarmonicaHint(note?.midi ?? null);
+function getTargetCentsOff(target, pitch) {
+  if (!target || target.midi === null || !pitch.frequency) {
+    return null;
+  }
+
+  return 1200 * Math.log2(pitch.frequency / midiToFrequency(target.midi));
 }
 
-function renderNotationTrack() {
+function renderNotationTrack(state) {
   elements.notationTrack.innerHTML = "";
+
   parsed.notes.forEach((note, index) => {
     const token = document.createElement("button");
     token.type = "button";
-    token.className = `notation-token${index === selectedIndex ? " active" : ""}`;
+    token.className = `notation-token${index === state.selectedIndex ? " active" : ""}`;
     token.textContent = note.notation;
     token.setAttribute("aria-label", `目标 ${note.notation}`);
     token.addEventListener("click", () => {
-      selectedIndex = index;
-      updateTarget();
+      session.selectIndex(index);
+      renderSession();
     });
     elements.notationTrack.append(token);
   });
 }
 
-function updateTarget() {
-  const target = getTarget();
+function renderTarget(target) {
   if (!target) {
     elements.targetNotation.textContent = "--";
     elements.targetMeta.textContent = "没有可练习音符";
@@ -77,23 +80,14 @@ function updateTarget() {
 
   const noteName = target.midi === null ? "Rest" : midiToNoteName(target.midi);
   elements.targetNotation.textContent = target.notation;
-  elements.targetMeta.textContent = `${noteName} · ${getHarmonicaHint(target)}`;
-  renderNotationTrack();
+  elements.targetMeta.textContent = `${noteName} · ${getCHarmonicaHint(target.midi)}`;
 }
 
-function parseInput() {
-  parsed = parseNumberedNotation(elements.notationInput.value, {
-    key: elements.keySelect.value,
-    tempo: Number(elements.tempoInput.value) || 80,
-    timeSignature: [4, 4],
-  });
-  selectedIndex = Math.min(selectedIndex, Math.max(0, parsed.notes.length - 1));
-  updateTarget();
-}
-
-function setFeedback(result) {
+function renderFeedback(result) {
   elements.feedback.className = `feedback ${result}`;
   const labels = {
+    start: "开始",
+    stopped: "已停止",
     perfect: "Perfect",
     good: "Good",
     early: "Early",
@@ -102,6 +96,24 @@ function setFeedback(result) {
     miss: "Miss",
   };
   elements.feedback.textContent = labels[result] ?? "等待声音";
+}
+
+function renderSession() {
+  const state = session.getState();
+  renderTarget(state.activeNote);
+  renderFeedback(state.feedback);
+  renderNotationTrack(state);
+  elements.elapsed.textContent = `${(state.elapsedMs / 1000).toFixed(1)}s`;
+}
+
+function parseInput() {
+  parsed = parseNumberedNotation(elements.notationInput.value, {
+    key: elements.keySelect.value,
+    tempo: Number(elements.tempoInput.value) || 80,
+    timeSignature: [4, 4],
+  });
+  session = new PracticeSession(parsed.notes);
+  renderSession();
 }
 
 function renderPitch() {
@@ -121,50 +133,31 @@ function renderPitch() {
   elements.cents.textContent = `${latestPitch.centsOff > 0 ? "+" : ""}${latestPitch.centsOff.toFixed(0)} cents`;
 }
 
-function updateJudgment(elapsedMs) {
+function updateSessionJudgment(playedAtMs = session.getState().elapsedMs) {
   const target = getTarget();
-  if (!target) {
-    return;
-  }
+  const centsOffTarget = getTargetCentsOff(target, latestPitch);
 
-  if (!latestPitch.frequency) {
-    setFeedback("miss");
-    return;
-  }
-
-  const targetFrequency = target.midi === null ? null : midiToFrequency(target.midi);
-  const centsOffTarget =
-    targetFrequency === null ? null : 1200 * Math.log2(latestPitch.frequency / targetFrequency);
-  const judgment = judgePlayedNote({
-    target,
-    playedMidi: latestPitch.midi,
+  session.updatePitch(latestPitch, {
     centsOff: centsOffTarget,
-    playedAtMs: elapsedMs,
+    playedAtMs,
   });
-
-  setFeedback(judgment.result);
+  renderSession();
 }
 
 function practiceTick() {
-  if (practiceStart === null || !parsed) {
+  if (!session?.getState().isRunning) {
     return;
   }
 
-  const elapsedMs = performance.now() - practiceStart;
-  const activeNote = getActiveNote(parsed.notes, elapsedMs);
-  if (activeNote) {
-    selectedIndex = parsed.notes.indexOf(activeNote);
-    updateTarget();
-    updateJudgment(elapsedMs);
+  const state = session.updateElapsed(performance.now());
+  if (latestPitch.frequency) {
+    updateSessionJudgment(state.elapsedMs);
+  } else {
+    renderSession();
   }
 
-  elements.elapsed.textContent = `${(elapsedMs / 1000).toFixed(1)}s`;
-
-  if (elapsedMs <= parsed.durationMs + 500) {
+  if (session.getState().isRunning) {
     practiceFrame = requestAnimationFrame(practiceTick);
-  } else {
-    practiceStart = null;
-    setFeedback("miss");
   }
 }
 
@@ -180,8 +173,8 @@ async function startMicrophone() {
       latestPitch.peak = pitch.peak;
       latestPitch.confidence = pitch.confidence;
       renderPitch();
-      if (practiceStart === null) {
-        updateJudgment(getTarget()?.startMs ?? 0);
+      if (!session.getState().isRunning) {
+        updateSessionJudgment(getTarget()?.startMs ?? 0);
       }
     });
     elements.micStatus.textContent = "麦克风已开启";
@@ -195,23 +188,21 @@ async function startMicrophone() {
 
 function startPractice() {
   parseInput();
-  practiceStart = performance.now();
+  session.start(performance.now());
   if (practiceFrame !== null) {
     cancelAnimationFrame(practiceFrame);
   }
-  setFeedback("miss");
+  renderSession();
   practiceTick();
 }
 
 function stopPractice() {
-  practiceStart = null;
+  session.stop();
   if (practiceFrame !== null) {
     cancelAnimationFrame(practiceFrame);
     practiceFrame = null;
   }
-  elements.elapsed.textContent = "0.0s";
-  elements.feedback.className = "feedback";
-  elements.feedback.textContent = "已停止";
+  renderSession();
 }
 
 function playTargetTone() {
@@ -247,12 +238,12 @@ elements.stopPractice.addEventListener("click", stopPractice);
 elements.startMic.addEventListener("click", startMicrophone);
 elements.playTarget.addEventListener("click", playTargetTone);
 elements.prevNote.addEventListener("click", () => {
-  selectedIndex = Math.max(0, selectedIndex - 1);
-  updateTarget();
+  session.selectPrevious();
+  renderSession();
 });
 elements.nextNote.addEventListener("click", () => {
-  selectedIndex = Math.min(parsed.notes.length - 1, selectedIndex + 1);
-  updateTarget();
+  session.selectNext();
+  renderSession();
 });
 
 parseInput();
