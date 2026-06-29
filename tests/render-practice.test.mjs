@@ -5,6 +5,8 @@ import {
   formatFeedbackLabel,
   formatInputLevel,
   formatPitchReadout,
+  formatPracticeStats,
+  getNotationTokenClass,
   formatTargetMeta,
 } from "../src/ui/render-practice.js";
 
@@ -45,4 +47,36 @@ test("formats pitch and input level readouts", () => {
 
   assert.equal(formatInputLevel({ rms: 0.03, confidence: 0.82 }).inputLevel, "24%");
   assert.equal(formatInputLevel({ rms: 0.03, confidence: 0.82 }).confidence, "82%");
+});
+
+test("formats practice stats and notation judgment classes", () => {
+  const stats = formatPracticeStats({
+    accuracyPercent: 67,
+    attemptedNotes: 3,
+    counts: {
+      perfect: 1,
+      good: 1,
+      early: 0,
+      late: 0,
+      wrong: 1,
+      miss: 0,
+    },
+    difficultNotes: [
+      {
+        notation: "b3",
+        result: "wrong",
+      },
+    ],
+  });
+
+  assert.equal(stats.accuracy, "67%");
+  assert.equal(stats.attempted, "3");
+  assert.equal(stats.difficultNotes, "b3 · wrong");
+  assert.equal(
+    getNotationTokenClass({
+      isActive: true,
+      judgment: { result: "wrong" },
+    }),
+    "notation-token active judged-wrong",
+  );
 });

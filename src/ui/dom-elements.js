@@ -20,5 +20,12 @@ export function getDomElements(root = document) {
     playTarget: root.querySelector("#playTarget"),
     inputLevel: root.querySelector("#inputLevel"),
     confidence: root.querySelector("#confidence"),
+    accuracy: root.querySelector("#accuracy"),
+    attemptedNotes: root.querySelector("#attemptedNotes"),
+    perfectCount: root.querySelector("#perfectCount"),
+    goodCount: root.querySelector("#goodCount"),
+    wrongCount: root.querySelector("#wrongCount"),
+    missCount: root.querySelector("#missCount"),
+    difficultNotes: root.querySelector("#difficultNotes"),
   };
 }

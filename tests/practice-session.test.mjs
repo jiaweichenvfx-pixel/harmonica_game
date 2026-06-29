@@ -107,3 +107,36 @@ test("accepts target-relative pitch options from browser adapters", () => {
 
   assert.equal(session.getState().feedback, "perfect");
 });
+
+test("records latest note judgments and exposes practice stats", () => {
+  const session = new PracticeSession(notes);
+
+  session.start(0);
+  session.updateElapsed(40);
+  session.updatePitch({ frequency: 261.625565, midi: 60, centsOff: 0 });
+
+  session.updateElapsed(620);
+  session.updatePitch({ frequency: 277.182631, midi: 61, centsOff: 100 });
+
+  const state = session.getState();
+
+  assert.deepEqual(state.stats.counts, {
+    perfect: 1,
+    good: 0,
+    early: 0,
+    late: 0,
+    wrong: 1,
+    miss: 0,
+  });
+  assert.equal(state.stats.attemptedNotes, 2);
+  assert.equal(state.stats.accuracyPercent, 50);
+  assert.deepEqual(state.stats.difficultNotes, [
+    {
+      id: "n2",
+      notation: "2",
+      result: "wrong",
+    },
+  ]);
+  assert.equal(state.judgmentsByNoteId.n1.result, "perfect");
+  assert.equal(state.judgmentsByNoteId.n2.result, "wrong");
+});

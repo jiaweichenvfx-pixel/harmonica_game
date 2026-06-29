@@ -49,10 +49,41 @@ export function formatInputLevel(pitch) {
   };
 }
 
+export function formatPracticeStats(stats) {
+  const difficultNotes =
+    stats.difficultNotes.length === 0
+      ? "--"
+      : stats.difficultNotes.map((note) => `${note.notation} · ${note.result}`).join(", ");
+
+  return {
+    accuracy: `${stats.accuracyPercent}%`,
+    attempted: String(stats.attemptedNotes),
+    counts: {
+      good: String(stats.counts.good),
+      miss: String(stats.counts.miss),
+      perfect: String(stats.counts.perfect),
+      wrong: String(stats.counts.wrong),
+    },
+    difficultNotes,
+  };
+}
+
+export function getNotationTokenClass({ isActive, judgment }) {
+  const classes = ["notation-token"];
+  if (isActive) {
+    classes.push("active");
+  }
+  if (judgment?.result) {
+    classes.push(`judged-${judgment.result}`);
+  }
+  return classes.join(" ");
+}
+
 export function renderSession(elements, parsed, state, onSelectIndex) {
   renderTarget(elements, state.activeNote);
   renderFeedback(elements, state.feedback);
-  renderNotationTrack(elements, parsed.notes, state.selectedIndex, onSelectIndex);
+  renderNotationTrack(elements, parsed.notes, state.selectedIndex, state.judgmentsByNoteId, onSelectIndex);
+  renderStats(elements, state.stats);
   elements.elapsed.textContent = `${(state.elapsedMs / 1000).toFixed(1)}s`;
 }
 
@@ -72,13 +103,16 @@ export function renderFeedback(elements, result) {
   elements.feedback.textContent = formatFeedbackLabel(result);
 }
 
-export function renderNotationTrack(elements, notes, selectedIndex, onSelectIndex) {
+export function renderNotationTrack(elements, notes, selectedIndex, judgmentsByNoteId, onSelectIndex) {
   elements.notationTrack.innerHTML = "";
 
   notes.forEach((note, index) => {
     const token = document.createElement("button");
     token.type = "button";
-    token.className = `notation-token${index === selectedIndex ? " active" : ""}`;
+    token.className = getNotationTokenClass({
+      isActive: index === selectedIndex,
+      judgment: judgmentsByNoteId[note.id],
+    });
     token.textContent = note.notation;
     token.setAttribute("aria-label", `目标 ${note.notation}`);
     token.addEventListener("click", () => onSelectIndex(index));
@@ -95,6 +129,17 @@ export function renderPitch(elements, pitch) {
   elements.cents.textContent = readout.cents;
   elements.inputLevel.textContent = levels.inputLevel;
   elements.confidence.textContent = levels.confidence;
+}
+
+export function renderStats(elements, stats) {
+  const formatted = formatPracticeStats(stats);
+  elements.accuracy.textContent = formatted.accuracy;
+  elements.attemptedNotes.textContent = formatted.attempted;
+  elements.perfectCount.textContent = formatted.counts.perfect;
+  elements.goodCount.textContent = formatted.counts.good;
+  elements.wrongCount.textContent = formatted.counts.wrong;
+  elements.missCount.textContent = formatted.counts.miss;
+  elements.difficultNotes.textContent = formatted.difficultNotes;
 }
 
 export function renderMicrophoneReady(elements) {

@@ -10,6 +10,7 @@ export class PracticeSession {
     this.elapsedMs = 0;
     this.startedAtMs = null;
     this.feedback = DEFAULT_FEEDBACK;
+    this.judgmentsByNoteId = {};
     this.lastPitch = null;
   }
 
@@ -17,6 +18,7 @@ export class PracticeSession {
     this.startedAtMs = nowMs;
     this.elapsedMs = 0;
     this.feedback = "miss";
+    this.judgmentsByNoteId = {};
     this.selectedIndex = 0;
   }
 
@@ -78,6 +80,12 @@ export class PracticeSession {
     });
 
     this.feedback = judgment.result;
+    this.judgmentsByNoteId[target.id] = {
+      centsOff: judgment.centsOff,
+      notation: target.notation,
+      result: judgment.result,
+      timingOffsetMs: judgment.timingOffsetMs,
+    };
     return this.getState();
   }
 
@@ -87,8 +95,44 @@ export class PracticeSession {
       elapsedMs: this.elapsedMs,
       feedback: this.feedback,
       isRunning: this.isRunning(),
+      judgmentsByNoteId: { ...this.judgmentsByNoteId },
       lastPitch: this.lastPitch,
       selectedIndex: this.selectedIndex,
+      stats: this.getStats(),
+    };
+  }
+
+  getStats() {
+    const counts = {
+      perfect: 0,
+      good: 0,
+      early: 0,
+      late: 0,
+      wrong: 0,
+      miss: 0,
+    };
+    const judgments = Object.entries(this.judgmentsByNoteId);
+
+    for (const [, judgment] of judgments) {
+      counts[judgment.result] += 1;
+    }
+
+    const correctNotes = counts.perfect + counts.good;
+    const attemptedNotes = judgments.length;
+    const accuracyPercent = attemptedNotes === 0 ? 0 : Math.round((correctNotes / attemptedNotes) * 100);
+    const difficultNotes = judgments
+      .filter(([, judgment]) => ["wrong", "miss", "early", "late"].includes(judgment.result))
+      .map(([id, judgment]) => ({
+        id,
+        notation: judgment.notation,
+        result: judgment.result,
+      }));
+
+    return {
+      accuracyPercent,
+      attemptedNotes,
+      counts,
+      difficultNotes,
     };
   }
 
