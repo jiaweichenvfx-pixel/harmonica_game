@@ -1,9 +1,11 @@
 import { createMicrophonePitchSource } from "./audio/microphone.js";
 import { createTargetTonePlayer } from "./audio/target-tone.js";
 import { describeFrequency, midiToFrequency } from "./core/music.js";
+import { evaluateBluesPitch, getShufflePosition } from "./freestyle/blues-shuffle.js";
 import { parseNumberedNotation } from "./core/notation.js";
 import { PracticeSession } from "./practice/practice-session.js";
 import { getDomElements } from "./ui/dom-elements.js";
+import { renderFreestyle, renderMode } from "./ui/render-freestyle.js";
 import {
   renderMicrophoneError,
   renderMicrophoneReady,
@@ -14,6 +16,8 @@ import {
 const elements = getDomElements();
 const targetTonePlayer = createTargetTonePlayer();
 
+let mode = "practice";
+let appStartedAtMs = performance.now();
 let parsed = null;
 let session = null;
 let practiceFrame = null;
@@ -27,6 +31,13 @@ let latestPitch = {
   peak: 0,
   confidence: 0,
 };
+
+function getFreestyleState(nowMs = performance.now()) {
+  return {
+    pitchEvaluation: evaluateBluesPitch(latestPitch),
+    shufflePosition: getShufflePosition(nowMs - appStartedAtMs, Number(elements.tempoInput.value) || 80),
+  };
+}
 
 function getTarget() {
   return session?.getTarget() ?? null;
@@ -45,6 +56,18 @@ function renderSession() {
     session.selectIndex(index);
     renderSession();
   });
+}
+
+function renderFreestyleState() {
+  renderFreestyle(elements, getFreestyleState());
+}
+
+function setMode(nextMode) {
+  mode = nextMode;
+  renderMode(elements, mode);
+  if (mode === "freestyle") {
+    renderFreestyleState();
+  }
 }
 
 function parseInput() {
@@ -97,6 +120,7 @@ async function startMicrophone() {
       latestPitch.peak = pitch.peak;
       latestPitch.confidence = pitch.confidence;
       renderPitch(elements, latestPitch);
+      renderFreestyleState();
       if (!session.getState().isRunning) {
         updateSessionJudgment(getTarget()?.startMs ?? 0);
       }
@@ -135,6 +159,8 @@ elements.startMic.addEventListener("click", startMicrophone);
 elements.playTarget.addEventListener("click", () => {
   targetTonePlayer.play(getTarget());
 });
+elements.practiceTab.addEventListener("click", () => setMode("practice"));
+elements.freestyleTab.addEventListener("click", () => setMode("freestyle"));
 elements.prevNote.addEventListener("click", () => {
   session.selectPrevious();
   renderSession();
@@ -145,3 +171,5 @@ elements.nextNote.addEventListener("click", () => {
 });
 
 parseInput();
+renderMode(elements, mode);
+renderFreestyleState();

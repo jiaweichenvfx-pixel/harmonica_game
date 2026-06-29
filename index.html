@@ -17,24 +17,61 @@
           <div class="status-pill" id="micStatus">麦克风未开启</div>
         </div>
 
-        <div class="hero-readout">
-          <div>
-            <p class="label">当前目标</p>
-            <div class="target-note" id="targetNotation">1</div>
-            <p class="target-meta" id="targetMeta">C4 · 4 blow</p>
-          </div>
-          <div class="feedback" id="feedback">开始</div>
+        <div class="mode-tabs" role="tablist" aria-label="模式">
+          <button id="practiceTab" type="button" class="mode-tab active">Practice</button>
+          <button id="freestyleTab" type="button" class="mode-tab">Freestyle</button>
         </div>
 
-        <div class="notation-track" id="notationTrack"></div>
+        <div id="practiceView">
+          <div class="hero-readout">
+            <div>
+              <p class="label">当前目标</p>
+              <div class="target-note" id="targetNotation">1</div>
+              <p class="target-meta" id="targetMeta">C4 · 4 blow</p>
+            </div>
+            <div class="feedback" id="feedback">开始</div>
+          </div>
 
-        <div class="controls">
-          <button id="startPractice" type="button">开始</button>
-          <button id="stopPractice" type="button" class="secondary">停止</button>
-          <button id="prevNote" type="button" class="icon-button" aria-label="上一个目标">‹</button>
-          <button id="nextNote" type="button" class="icon-button" aria-label="下一个目标">›</button>
-          <button id="startMic" type="button" class="secondary">开启麦克风</button>
-          <button id="playTarget" type="button" class="secondary">播放目标音</button>
+          <div class="notation-track" id="notationTrack"></div>
+
+          <div class="controls">
+            <button id="startPractice" type="button">开始</button>
+            <button id="stopPractice" type="button" class="secondary">停止</button>
+            <button id="prevNote" type="button" class="icon-button" aria-label="上一个目标">‹</button>
+            <button id="nextNote" type="button" class="icon-button" aria-label="下一个目标">›</button>
+            <button id="startMic" type="button" class="secondary">开启麦克风</button>
+            <button id="playTarget" type="button" class="secondary">播放目标音</button>
+          </div>
+        </div>
+
+        <div id="freestyleView" class="freestyle-view" hidden>
+          <div>
+            <p class="label">Freestyle Style</p>
+            <h2>Blues Shuffle</h2>
+          </div>
+
+          <div class="freestyle-grid">
+            <div>
+              <p class="label">允许音</p>
+              <div class="scale-pills" id="freestyleScale"></div>
+            </div>
+            <div>
+              <p class="label">当前音</p>
+              <strong id="freestyleNote">--</strong>
+              <p id="freestyleRole">waiting</p>
+            </div>
+            <div>
+              <p class="label">Shuffle 位置</p>
+              <strong id="shufflePosition">1</strong>
+              <p id="shuffleFeel">long</p>
+            </div>
+            <div>
+              <p class="label">反馈</p>
+              <strong id="freestyleFeedback">waiting</strong>
+            </div>
+          </div>
+
+          <div class="shuffle-grid" id="shuffleGrid"></div>
         </div>
 
         <div class="meter-grid">

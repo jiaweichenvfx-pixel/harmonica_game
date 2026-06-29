@@ -27,5 +27,16 @@ export function getDomElements(root = document) {
     wrongCount: root.querySelector("#wrongCount"),
     missCount: root.querySelector("#missCount"),
     difficultNotes: root.querySelector("#difficultNotes"),
+    practiceTab: root.querySelector("#practiceTab"),
+    freestyleTab: root.querySelector("#freestyleTab"),
+    practiceView: root.querySelector("#practiceView"),
+    freestyleView: root.querySelector("#freestyleView"),
+    freestyleScale: root.querySelector("#freestyleScale"),
+    freestyleNote: root.querySelector("#freestyleNote"),
+    freestyleRole: root.querySelector("#freestyleRole"),
+    shufflePosition: root.querySelector("#shufflePosition"),
+    shuffleFeel: root.querySelector("#shuffleFeel"),
+    freestyleFeedback: root.querySelector("#freestyleFeedback"),
+    shuffleGrid: root.querySelector("#shuffleGrid"),
   };
 }
