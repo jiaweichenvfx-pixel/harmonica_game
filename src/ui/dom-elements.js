@@ -1,0 +1,24 @@
+export function getDomElements(root = document) {
+  return {
+    notationInput: root.querySelector("#notationInput"),
+    keySelect: root.querySelector("#keySelect"),
+    tempoInput: root.querySelector("#tempoInput"),
+    targetNotation: root.querySelector("#targetNotation"),
+    targetMeta: root.querySelector("#targetMeta"),
+    notationTrack: root.querySelector("#notationTrack"),
+    feedback: root.querySelector("#feedback"),
+    micStatus: root.querySelector("#micStatus"),
+    detectedNote: root.querySelector("#detectedNote"),
+    frequency: root.querySelector("#frequency"),
+    cents: root.querySelector("#cents"),
+    elapsed: root.querySelector("#elapsed"),
+    startPractice: root.querySelector("#startPractice"),
+    stopPractice: root.querySelector("#stopPractice"),
+    prevNote: root.querySelector("#prevNote"),
+    nextNote: root.querySelector("#nextNote"),
+    startMic: root.querySelector("#startMic"),
+    playTarget: root.querySelector("#playTarget"),
+    inputLevel: root.querySelector("#inputLevel"),
+    confidence: root.querySelector("#confidence"),
+  };
+}
