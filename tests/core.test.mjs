@@ -8,6 +8,7 @@ import {
   midiToNoteName,
 } from "../src/core/music.js";
 import { detectPitchAutocorrelation } from "../src/audio/pitch-detector.js";
+import { getCHarmonicaHint } from "../src/core/harmonica.js";
 import { parseNumberedNotation } from "../src/core/notation.js";
 import { judgePlayedNote } from "../src/core/scoring.js";
 
@@ -56,6 +57,32 @@ test("parses rests and octave marks", () => {
       ["5,", 3000, 1000, 55],
     ],
   );
+});
+
+test("parses accidentals for bend notes in numbered notation", () => {
+  const result = parseNumberedNotation("| b3 #4 b7 b3' |", {
+    key: "C",
+    tempo: 60,
+    timeSignature: [4, 4],
+  });
+
+  assert.deepEqual(
+    result.notes.map((note) => [note.notation, note.midi]),
+    [
+      ["b3", 63],
+      ["#4", 66],
+      ["b7", 70],
+      ["b3'", 75],
+    ],
+  );
+});
+
+test("describes common C diatonic harmonica bends", () => {
+  assert.equal(getCHarmonicaHint(60), "4 blow");
+  assert.equal(getCHarmonicaHint(63), "3 draw bend -3");
+  assert.equal(getCHarmonicaHint(66), "4 draw bend -1");
+  assert.equal(getCHarmonicaHint(70), "6 draw bend -1");
+  assert.equal(getCHarmonicaHint(75), "10 draw bend -2");
 });
 
 test("judges pitch and timing against a target note", () => {

@@ -1,18 +1,8 @@
 import { createMicrophonePitchSource } from "./audio/microphone.js";
 import { describeFrequency, midiToFrequency, midiToNoteName } from "./core/music.js";
+import { getCHarmonicaHint } from "./core/harmonica.js";
 import { parseNumberedNotation } from "./core/notation.js";
 import { getActiveNote, judgePlayedNote } from "./core/scoring.js";
-
-const HARMONICA_C = new Map([
-  [60, "4 blow"],
-  [62, "4 draw"],
-  [64, "5 blow"],
-  [65, "5 draw"],
-  [67, "6 blow"],
-  [69, "6 draw"],
-  [71, "7 draw"],
-  [72, "7 blow"],
-]);
 
 const elements = {
   notationInput: document.querySelector("#notationInput"),
@@ -58,11 +48,7 @@ function getTarget() {
 }
 
 function getHarmonicaHint(note) {
-  if (!note || note.midi === null) {
-    return "rest";
-  }
-
-  return HARMONICA_C.get(note.midi) ?? "C harmonica: advanced/out of first-position range";
+  return getCHarmonicaHint(note?.midi ?? null);
 }
 
 function renderNotationTrack() {

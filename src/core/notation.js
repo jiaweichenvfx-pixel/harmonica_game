@@ -33,23 +33,24 @@ export function notationTokenToMidi(token, key = "C") {
     return null;
   }
 
-  const match = token.match(/^([1-7])([',]*)$/);
+  const match = token.match(/^([b#♭♯]?)([1-7])([',]*)$/);
   if (!match) {
     throw new Error(`Unsupported notation token: ${token}`);
   }
 
-  const [, degree, octaveMarks] = match;
+  const [, accidental, degree, octaveMarks] = match;
   const rootMidi = KEY_ROOT_MIDI[key];
   if (!Number.isInteger(rootMidi)) {
     throw new Error(`Unsupported key: ${key}`);
   }
 
+  const accidentalShift = accidental === "b" || accidental === "♭" ? -1 : accidental === "#" || accidental === "♯" ? 1 : 0;
   let octaveShift = 0;
   for (const mark of octaveMarks) {
     octaveShift += mark === "'" ? 12 : -12;
   }
 
-  return rootMidi + MAJOR_SCALE_OFFSETS[degree] + octaveShift;
+  return rootMidi + MAJOR_SCALE_OFFSETS[degree] + accidentalShift + octaveShift;
 }
 
 export function parseNumberedNotation(text, options = {}) {
@@ -57,7 +58,7 @@ export function parseNumberedNotation(text, options = {}) {
   const key = options.key ?? "C";
   const [beatsPerBar] = options.timeSignature ?? [4, 4];
   const beatMs = 60000 / tempo;
-  const rawTokens = text.match(/[1-7](?:[',]*)|0|-|\|/g) ?? [];
+  const rawTokens = text.match(/[b#♭♯]?[1-7](?:[',]*)|0|-|\|/g) ?? [];
 
   const notes = [];
   let cursorMs = 0;
