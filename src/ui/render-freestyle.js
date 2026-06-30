@@ -46,16 +46,25 @@ export function renderShuffleGrid(elements, activeStep) {
 
 export function renderScore(elements, activeStep) {
   elements.freestyleScore.innerHTML = "";
-  for (const row of BLUES_SHUFFLE_RIFF.rows) {
+  for (const row of getScoreRows(BLUES_SHUFFLE_RIFF, 4)) {
     const rowElement = document.createElement("div");
     rowElement.className = "score-row";
 
-    for (const bar of row.bars) {
+    for (const bar of row) {
       rowElement.append(renderScoreBar(bar, activeStep));
     }
 
     elements.freestyleScore.append(rowElement);
   }
+}
+
+export function getScoreRows(score, barsPerRow = 4) {
+  const bars = score.rows.flatMap((row) => row.bars);
+  const rows = [];
+  for (let index = 0; index < bars.length; index += barsPerRow) {
+    rows.push(bars.slice(index, index + barsPerRow));
+  }
+  return rows;
 }
 
 function renderScoreBar(bar, activeStep) {

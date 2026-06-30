@@ -175,18 +175,18 @@ h2 {
 
 .score-sheet {
   display: grid;
-  gap: 16px;
+  gap: 10px;
   border-top: 1px solid #e6edf0;
   border-bottom: 1px solid #e6edf0;
   background: #fff;
-  padding: 16px 0;
+  padding: 12px 0;
 }
 
 .score-row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(240px, 1fr));
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
   gap: 0;
-  min-height: 160px;
+  min-height: 126px;
 }
 
 .score-bar {
@@ -194,7 +194,7 @@ h2 {
   border-left: 2px solid #20272b;
   background: #fff;
   border-radius: 0;
-  padding: 12px 10px 14px;
+  padding: 8px 8px 10px;
 }
 
 .score-row .score-bar:last-child {
@@ -203,30 +203,30 @@ h2 {
 
 .score-chord {
   color: #5f9cbd;
-  font-size: 1.08rem;
+  font-size: 0.92rem;
   font-weight: 800;
-  min-height: 24px;
+  min-height: 20px;
 }
 
 .score-notes {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: end;
-  min-height: 82px;
+  min-height: 68px;
 }
 
 .score-note {
   position: relative;
   display: grid;
-  grid-template-rows: 14px 42px 10px 12px;
+  grid-template-rows: 10px 32px 8px 10px;
   justify-items: center;
   align-items: center;
-  min-height: 82px;
+  min-height: 68px;
   color: var(--ink);
 }
 
 .score-symbol {
-  font-size: clamp(2rem, 4.2vw, 3.2rem);
+  font-size: clamp(1.25rem, 2vw, 2rem);
   font-weight: 900;
   color: var(--ink);
   line-height: 1;
@@ -246,26 +246,26 @@ h2 {
 
 .score-octave-dots {
   color: var(--ink);
-  font-size: 1.2rem;
+  font-size: 0.9rem;
   font-weight: 900;
-  height: 12px;
+  height: 9px;
   line-height: 0.6;
 }
 
 .score-dotted {
   position: absolute;
   right: 18%;
-  top: 33px;
+  top: 26px;
   color: var(--ink);
-  font-size: 1.4rem;
+  font-size: 1rem;
   font-weight: 900;
   line-height: 1;
 }
 
 .score-rhythm-lines {
   display: grid;
-  gap: 3px;
-  width: min(48px, 70%);
+  gap: 2px;
+  width: min(36px, 70%);
 }
 
 .score-rhythm-lines::before,
@@ -286,9 +286,9 @@ h2 {
 .score-note.tie-stop::before {
   content: "";
   position: absolute;
-  top: 8px;
+  top: 6px;
   width: 64%;
-  height: 18px;
+  height: 14px;
   border-top: 2px solid #20272b;
   border-radius: 50% 50% 0 0;
 }
@@ -304,22 +304,22 @@ h2 {
 .score-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-top: 8px;
+  margin-top: 5px;
 }
 
 .score-beat {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 4px;
+  gap: 2px;
 }
 
 .score-step {
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.65rem;
   font-weight: 800;
-  padding: 4px 6px;
+  padding: 2px 4px;
   text-align: center;
 }
 
@@ -625,7 +625,18 @@ select {
   }
 
   .score-header,
-  .freestyle-input,
+  .freestyle-input {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .score-row {
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
   .score-row {
     grid-template-columns: 1fr;
   }
