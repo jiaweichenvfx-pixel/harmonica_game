@@ -265,7 +265,7 @@ h2 {
 .score-rhythm-lines {
   display: grid;
   gap: 2px;
-  width: min(36px, 70%);
+  width: 70%;
 }
 
 .score-rhythm-lines::before,
@@ -280,6 +280,26 @@ h2 {
 .score-rhythm-lines.lines-2::before,
 .score-rhythm-lines.lines-2::after {
   background: var(--ink);
+}
+
+.score-rhythm-lines.beam-start {
+  justify-self: end;
+  width: 85%;
+}
+
+.score-rhythm-lines.beam-middle {
+  justify-self: stretch;
+  width: 100%;
+}
+
+.score-rhythm-lines.beam-end {
+  justify-self: start;
+  width: 85%;
+}
+
+.score-rhythm-lines.beam-single {
+  justify-self: center;
+  width: min(36px, 70%);
 }
 
 .score-note.tie-start::before,
@@ -302,7 +322,7 @@ h2 {
 }
 
 .score-grid {
-  display: grid;
+  display: none;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   margin-top: 5px;
 }

@@ -11,7 +11,7 @@ export function renderMode(elements, mode) {
 }
 
 export function renderFreestyle(elements, state) {
-  elements.freestyleKey.textContent = `${BLUES_SHUFFLE_RIFF.keyLabel} · ${BLUES_SHUFFLE_RIFF.feelLabel}`;
+  elements.freestyleKey.textContent = `${BLUES_SHUFFLE_RIFF.keyLabel} · ${BLUES_SHUFFLE_RIFF.meterLabel} · ${BLUES_SHUFFLE_RIFF.feelLabel}`;
   elements.freestyleTitle.textContent = BLUES_SHUFFLE_RIFF.title;
   renderScore(elements, state.shufflePosition.step);
   renderScale(elements, state.pitchEvaluation?.notation);
@@ -77,8 +77,8 @@ function renderScoreBar(bar, activeStep) {
 
   const notesElement = document.createElement("div");
   notesElement.className = "score-notes";
-  for (const note of bar.notes) {
-    notesElement.append(renderScoreNote(note));
+  for (const [index, note] of bar.notes.entries()) {
+    notesElement.append(renderScoreNote(note, getRhythmGroupClass(bar.notes, index)));
   }
 
   const gridElement = document.createElement("div");
@@ -97,7 +97,30 @@ function renderScoreBar(bar, activeStep) {
   return barElement;
 }
 
-function renderScoreNote(note) {
+export function getRhythmGroupClass(notes, index) {
+  const currentLines = notes[index]?.rhythmLines ?? 0;
+  const previousLines = notes[index - 1]?.rhythmLines ?? 0;
+  const nextLines = notes[index + 1]?.rhythmLines ?? 0;
+
+  if (currentLines === 0) {
+    return "beam-single";
+  }
+
+  const joinsPrevious = previousLines === currentLines;
+  const joinsNext = nextLines === currentLines;
+  if (joinsPrevious && joinsNext) {
+    return "beam-middle";
+  }
+  if (joinsPrevious) {
+    return "beam-end";
+  }
+  if (joinsNext) {
+    return "beam-start";
+  }
+  return "beam-single";
+}
+
+function renderScoreNote(note, rhythmGroupClass = "beam-single") {
   const noteElement = document.createElement("span");
   noteElement.className = `score-note ${note.role}${note.tie ? ` tie-${note.tie}` : ""}`;
 
@@ -118,7 +141,7 @@ function renderScoreNote(note) {
   lowDots.textContent = note.octave < 0 ? "·".repeat(Math.abs(note.octave)) : "";
 
   const rhythm = document.createElement("span");
-  rhythm.className = `score-rhythm-lines lines-${note.rhythmLines ?? 0}`;
+  rhythm.className = `score-rhythm-lines lines-${note.rhythmLines ?? 0} ${rhythmGroupClass}`;
   rhythm.setAttribute("aria-label", `${note.rhythmLines ?? 0} rhythm lines`);
 
   noteElement.append(highDots, symbol, dotted, lowDots, rhythm);

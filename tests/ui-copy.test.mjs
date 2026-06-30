@@ -16,3 +16,12 @@ test("score stylesheet lays out four bars per desktop row", () => {
   assert.match(css, /@media \(max-width:\s*640px\)[\s\S]*?\.score-row\s*\{[^}]*repeat\(2,\s*minmax\(150px,\s*1fr\)\)/s);
   assert.match(css, /@media \(max-width:\s*420px\)[\s\S]*?\.score-row\s*\{[^}]*grid-template-columns:\s*1fr/s);
 });
+
+test("score stylesheet hides shuffle beat grid by default", () => {
+  const css = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
+
+  assert.match(css, /\.score-grid\s*\{[^}]*display:\s*none/s);
+  assert.match(css, /\.score-rhythm-lines\.beam-start/s);
+  assert.match(css, /\.score-rhythm-lines\.beam-middle/s);
+  assert.match(css, /\.score-rhythm-lines\.beam-end/s);
+});

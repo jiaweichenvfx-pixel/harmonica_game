@@ -13,6 +13,7 @@ export const BLUES_SHUFFLE_NOTES = [
 export const BLUES_SHUFFLE_RIFF = {
   title: "C Blues Shuffle Riff",
   keyLabel: "1=C",
+  meterLabel: "4/4",
   feelLabel: "Shuffle",
   shuffleLabels: ["1", "a", "2", "a", "3", "a", "4", "a"],
   rows: [

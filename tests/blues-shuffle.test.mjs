@@ -71,6 +71,7 @@ test("reports shuffle grid positions with long-short feel", () => {
 
 test("defines a visible blues shuffle riff score", () => {
   assert.equal(BLUES_SHUFFLE_RIFF.title, "C Blues Shuffle Riff");
+  assert.equal(BLUES_SHUFFLE_RIFF.meterLabel, "4/4");
   assert.deepEqual(BLUES_SHUFFLE_RIFF.shuffleLabels, ["1", "a", "2", "a", "3", "a", "4", "a"]);
   assert.equal(BLUES_SHUFFLE_RIFF.rows.length, 2);
   assert.deepEqual(
