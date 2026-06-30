@@ -1,3 +1,5 @@
+import { parseNotationToken } from "../core/notation.js";
+
 export const BLUES_SHUFFLE_NOTES = [
   { notation: "1", midi: 60, role: "root" },
   { notation: "b3", midi: 63, role: "blue" },
@@ -19,21 +21,23 @@ export const BLUES_SHUFFLE_RIFF = {
       bars: [
         {
           id: "a1",
-          notes: [
-            { notation: "1", role: "root" },
-            { notation: "b3", role: "blue" },
-            { notation: "4", role: "color" },
-            { notation: "#4", role: "tension" },
-          ],
+          chord: "C7",
+          notes: buildScoreNotes([
+            { notation: "1/2", role: "root", label: "1" },
+            { notation: "b3/4", role: "blue", label: "b3" },
+            { notation: "4/4.", role: "color", label: "4" },
+            { notation: "#4~", role: "tension", label: "#4" },
+          ]),
         },
         {
           id: "a2",
-          notes: [
-            { notation: "5", role: "stable" },
-            { notation: "b7", role: "blue" },
-            { notation: "5", role: "stable" },
+          chord: "F7",
+          notes: buildScoreNotes([
+            { notation: "5", role: "stable", tie: "stop" },
+            { notation: "b7/2", role: "blue" },
+            { notation: "5/2", role: "stable" },
             { notation: "b3", role: "blue" },
-          ],
+          ]),
         },
       ],
     },
@@ -42,26 +46,56 @@ export const BLUES_SHUFFLE_RIFF = {
       bars: [
         {
           id: "b1",
-          notes: [
-            { notation: "1", role: "root" },
+          chord: "C7",
+          notes: buildScoreNotes([
+            { notation: "1,", role: "root", label: "1" },
             { notation: "-", role: "hold" },
-            { notation: "b3", role: "blue" },
-            { notation: "4", role: "color" },
-          ],
+            { notation: "b3/2", role: "blue" },
+            { notation: "4/2", role: "color" },
+          ]),
         },
         {
           id: "b2",
-          notes: [
-            { notation: "5", role: "stable" },
-            { notation: "b7", role: "blue" },
+          chord: "G7",
+          notes: buildScoreNotes([
+            { notation: "5/4", role: "stable" },
+            { notation: "b7/4", role: "blue" },
             { notation: "1'", role: "root" },
             { notation: "-", role: "hold" },
-          ],
+          ]),
         },
       ],
     },
   ],
 };
+
+function buildScoreNotes(notes) {
+  return notes.map((note) => {
+    if (note.notation === "-") {
+      return {
+        notation: "-",
+        display: "-",
+        dotted: false,
+        octave: 0,
+        rhythmLines: 0,
+        role: note.role,
+        tie: null,
+      };
+    }
+
+    const parsed = parseNotationToken(note.notation);
+    return {
+      ...note,
+      notation: note.label ?? note.notation.replace(/\/(?:2|4)|\.|~/g, ""),
+      sourceNotation: note.notation,
+      display: `${parsed.accidental ?? ""}${parsed.display}`,
+      dotted: parsed.dotted,
+      octave: parsed.octave,
+      rhythmLines: parsed.rhythmLines,
+      tie: note.tie ?? parsed.tie,
+    };
+  });
+}
 
 const FEEDBACK_BY_ROLE = {
   blue: "blue note",

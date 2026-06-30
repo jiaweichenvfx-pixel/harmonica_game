@@ -86,4 +86,27 @@ test("defines a visible blues shuffle riff score", () => {
       ],
     ],
   );
+  assert.deepEqual(
+    BLUES_SHUFFLE_RIFF.rows.map((row) => row.bars.map((bar) => bar.chord)),
+    [
+      ["C7", "F7"],
+      ["C7", "G7"],
+    ],
+  );
+  assert.deepEqual(
+    BLUES_SHUFFLE_RIFF.rows[0].bars[0].notes.map((note) => ({
+      display: note.display,
+      rhythmLines: note.rhythmLines,
+      dotted: note.dotted,
+      octave: note.octave,
+      tie: note.tie,
+    })),
+    [
+      { display: "1", rhythmLines: 1, dotted: false, octave: 0, tie: null },
+      { display: "b3", rhythmLines: 2, dotted: false, octave: 0, tie: null },
+      { display: "4", rhythmLines: 2, dotted: true, octave: 0, tie: null },
+      { display: "#4", rhythmLines: 0, dotted: false, octave: 0, tie: "start" },
+    ],
+  );
+  assert.equal(BLUES_SHUFFLE_RIFF.rows[0].bars[1].notes[0].tie, "stop");
 });

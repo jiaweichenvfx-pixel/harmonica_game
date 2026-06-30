@@ -62,13 +62,14 @@ function renderScoreBar(bar, activeStep) {
   const barElement = document.createElement("div");
   barElement.className = "score-bar";
 
+  const chordElement = document.createElement("div");
+  chordElement.className = "score-chord";
+  chordElement.textContent = bar.chord ?? "";
+
   const notesElement = document.createElement("div");
   notesElement.className = "score-notes";
   for (const note of bar.notes) {
-    const noteElement = document.createElement("span");
-    noteElement.className = `score-note ${note.role}`;
-    noteElement.textContent = note.notation;
-    notesElement.append(noteElement);
+    notesElement.append(renderScoreNote(note));
   }
 
   const gridElement = document.createElement("div");
@@ -83,8 +84,36 @@ function renderScoreBar(bar, activeStep) {
     gridElement.append(beatElement);
   }
 
-  barElement.append(notesElement, gridElement);
+  barElement.append(chordElement, notesElement, gridElement);
   return barElement;
+}
+
+function renderScoreNote(note) {
+  const noteElement = document.createElement("span");
+  noteElement.className = `score-note ${note.role}${note.tie ? ` tie-${note.tie}` : ""}`;
+
+  const highDots = document.createElement("span");
+  highDots.className = "score-octave-dots high";
+  highDots.textContent = note.octave > 0 ? "·".repeat(note.octave) : "";
+
+  const symbol = document.createElement("span");
+  symbol.className = "score-symbol";
+  symbol.textContent = note.display ?? note.notation;
+
+  const dotted = document.createElement("span");
+  dotted.className = "score-dotted";
+  dotted.textContent = note.dotted ? "·" : "";
+
+  const lowDots = document.createElement("span");
+  lowDots.className = "score-octave-dots low";
+  lowDots.textContent = note.octave < 0 ? "·".repeat(Math.abs(note.octave)) : "";
+
+  const rhythm = document.createElement("span");
+  rhythm.className = `score-rhythm-lines lines-${note.rhythmLines ?? 0}`;
+  rhythm.setAttribute("aria-label", `${note.rhythmLines ?? 0} rhythm lines`);
+
+  noteElement.append(highDots, symbol, dotted, lowDots, rhythm);
+  return noteElement;
 }
 
 function renderScoreStep(label, activeStep, stepIndex, isShort) {

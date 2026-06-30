@@ -77,6 +77,116 @@ test("parses accidentals for bend notes in numbered notation", () => {
   );
 });
 
+test("parses numbered notation display metadata for score rendering", () => {
+  const result = parseNumberedNotation("| 1/2 2/4 3. 5' 6, 7~ 7 |", {
+    key: "C",
+    tempo: 120,
+    timeSignature: [4, 4],
+  });
+
+  assert.deepEqual(
+    result.notes.map((note) => ({
+      notation: note.notation,
+      display: note.display,
+      durationBeats: note.durationBeats,
+      rhythmLines: note.rhythmLines,
+      dotted: note.dotted,
+      tie: note.tie,
+      octave: note.octave,
+      startBeat: note.startBeat,
+    })),
+    [
+      {
+        notation: "1/2",
+        display: "1",
+        durationBeats: 0.5,
+        rhythmLines: 1,
+        dotted: false,
+        tie: null,
+        octave: 0,
+        startBeat: 1,
+      },
+      {
+        notation: "2/4",
+        display: "2",
+        durationBeats: 0.25,
+        rhythmLines: 2,
+        dotted: false,
+        tie: null,
+        octave: 0,
+        startBeat: 1.5,
+      },
+      {
+        notation: "3.",
+        display: "3",
+        durationBeats: 1.5,
+        rhythmLines: 0,
+        dotted: true,
+        tie: null,
+        octave: 0,
+        startBeat: 1.75,
+      },
+      {
+        notation: "5'",
+        display: "5",
+        durationBeats: 1,
+        rhythmLines: 0,
+        dotted: false,
+        tie: null,
+        octave: 1,
+        startBeat: 3.25,
+      },
+      {
+        notation: "6,",
+        display: "6",
+        durationBeats: 1,
+        rhythmLines: 0,
+        dotted: false,
+        tie: null,
+        octave: -1,
+        startBeat: 4.25,
+      },
+      {
+        notation: "7~",
+        display: "7",
+        durationBeats: 1,
+        rhythmLines: 0,
+        dotted: false,
+        tie: "start",
+        octave: 0,
+        startBeat: 5.25,
+      },
+      {
+        notation: "7",
+        display: "7",
+        durationBeats: 1,
+        rhythmLines: 0,
+        dotted: false,
+        tie: "stop",
+        octave: 0,
+        startBeat: 6.25,
+      },
+    ],
+  );
+});
+
+test("stops numbered notation ties after the immediate target note", () => {
+  const result = parseNumberedNotation("| 7~ 7 7 |", {
+    key: "C",
+    tempo: 120,
+    timeSignature: [4, 4],
+  });
+
+  assert.deepEqual(
+    result.notes.map((note) => [note.notation, note.tie]),
+    [
+      ["7~", "start"],
+      ["7", "stop"],
+      ["7", null],
+    ],
+  );
+});
+
 test("describes common C diatonic harmonica bends", () => {
   assert.equal(getCHarmonicaHint(60), "4 blow");
   assert.equal(getCHarmonicaHint(63), "3 draw bend -3");
